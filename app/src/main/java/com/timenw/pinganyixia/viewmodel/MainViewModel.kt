@@ -138,6 +138,30 @@ class MainViewModel(context: Context) : ViewModel() {
         settingsRepository.setVoiceEnabled(enabled)
     }
 
+    fun updateDailyCheckinReminderTime(time: String) = viewModelScope.launch(Dispatchers.IO) {
+        settingsRepository.setDailyCheckinReminderTime(time)
+        // Reschedule alarms
+        val context = appContext
+        val settings = settingsRepository.settingsFlow().first()
+        val (hour, minute) = time.split(':").map { it.toInt() }
+        ReminderReceiver.scheduleDailyCheckinReminder(context, hour, minute)
+        ReminderReceiver.scheduleMissingCheckinAlert(context, settings.missingCheckinAlertTime)
+    }
+
+    fun updateMissingCheckinAlertTime(time: String) = viewModelScope.launch(Dispatchers.IO) {
+        settingsRepository.setMissingCheckinAlertTime(time)
+        // Reschedule alarms
+        val context = appContext
+        val settings = settingsRepository.settingsFlow().first()
+        val (hour, minute) = time.split(':").map { it.toInt() }
+        ReminderReceiver.scheduleMissingCheckinAlert(context, hour, minute)
+    }
+
+    fun updateEmergencyMessageTemplate(message: String) = viewModelScope.launch(Dispatchers.IO) {
+        settingsRepository.setEmergencyMessageTemplate(message)
+    }
+
+
     fun updateVibrationEnabled(enabled: Boolean) = viewModelScope.launch(Dispatchers.IO) {
         settingsRepository.setVibrationEnabled(enabled)
     }

@@ -62,4 +62,17 @@ class SettingsRepository(private val context: Context) {
     suspend fun setSimpleMode(enabled: Boolean) {
         context.settingsDataStore.edit { it[Keys.SIMPLE_MODE] = enabled }
     }
+
+    suspend fun setDailyCheckinReminderTime(time: String) {
+        context.settingsDataStore.edit { it[Keys.DAILY_CHECKIN_REMINDER] = time }
+    }
+
+    suspend fun setMissingCheckinAlertTime(time: String) {
+        context.settingsDataStore.edit { it[Keys.MISSING_CHECKIN_ALERT] = time }
+    }
+
+    suspend fun setEmergencyMessageTemplate(message: String) {
+        context.settingsDataStore.edit { it[Keys.EMERGENCY_MESSAGE] = message }
+    }
+
 }

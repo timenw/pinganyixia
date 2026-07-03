@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.timenw.pinganyixia.data.prefs.AppSettings
 import com.timenw.pinganyixia.viewmodel.MainViewModel
+import androidx.compose.material3.TextField
+import androidx.compose.material3.Button
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,8 +33,20 @@ fun SettingsScreen(viewModel: MainViewModel, settings: AppSettings) {
             SettingsRow("震动反馈", "按钮点击时震动", settings.vibrationEnabled, viewModel::updateVibrationEnabled)
         }
         SettingsSection("提醒设置") {
-            StaticRow("每日报平安提醒", settings.dailyCheckinReminderTime)
-            StaticRow("未报平安检查", settings.missingCheckinAlertTime)
+            EditTimeRow(
+                title = "每日报平安提醒",
+                time = settings.dailyCheckinReminderTime,
+                onTimeSet = { newTime ->
+                    viewModel.updateDailyCheckinReminderTime(newTime)
+                }
+            )
+            EditTimeRow(
+                title = "未报平安检查",
+                time = settings.missingCheckinAlertTime,
+                onTimeSet = { newTime ->
+                    viewModel.updateMissingCheckinAlertTime(newTime)
+                }
+            )
         }
         SettingsSection("无障碍") {
             SettingsRow("高对比度模式", "增强颜色对比度", settings.highContrastMode, viewModel::updateHighContrastMode)
@@ -70,5 +84,31 @@ private fun StaticRow(title: String, value: String) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(title, fontSize = 20.sp)
         Text(value, fontSize = 18.sp, color = Color.Gray)
+    }
+}
+
+@Composable
+private fun EditTimeRow(title: String, time: String, onTimeSet: (String) -> Unit) {
+    var editedText by remember { mutableStateOf(time) }
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(title, fontSize = 20.sp)
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            TextField(
+                value = editedText,
+                onValueChange = { editedText = it },
+                label = { Text("时间 (HH:mm)") },
+                singleLine = true,
+                modifier = Modifier.width(0.6f)
+            )
+            Button(onClick = {
+                if (Regex(Regex("\\d{2}:\\d{2}")).matches(editedText)) {
+                    onTimeSet(editedText)
+                } else {
+                    // TODO: show error
+                }
+            }) {
+                Text("确定")
+            }
+        }
     }
 }
